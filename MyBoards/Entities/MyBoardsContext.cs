@@ -2,6 +2,7 @@
 using static System.Net.Mime.MediaTypeNames;
 using System.Diagnostics.Metrics;
 using System;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace MyBoards.Entities
 {
@@ -14,7 +15,7 @@ namespace MyBoards.Entities
         public DbSet<User>  Users { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<Comment> Comments { get; set; }
-        public DbSet<Adress> Adresses { get; set; }
+        public DbSet<Address> Adresses { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -29,6 +30,13 @@ namespace MyBoards.Entities
                 eb.Property(wi => wi.Activity).HasMaxLength(200);
                 eb.Property(wi => wi.RemaningWork).HasPrecision(14, 2);
                 eb.Property(wi => wi.Priority).HasDefaultValue(1);
+                eb.HasMany(w => w.Comments)
+                .WithOne(c => c.WorkItem)
+                .HasForeignKey(c => c.WorkItemId);
+
+                eb.HasOne(w => w.Author)
+                .WithMany(u => u.WorkItems)
+                .HasForeignKey(w => w.AuthorId);
             });
 
             modelBuilder.Entity<Comment>(eb =>
@@ -40,7 +48,7 @@ namespace MyBoards.Entities
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Address)
                 .WithOne(a => a.User)
-                .HasForeignKey<Adress>(a => a.UserId);
+                .HasForeignKey<Address>(a => a.UserId);
             
         }
 

@@ -9,8 +9,9 @@ namespace MyBoards.Entities
         public string LastName { get; set; }
         public string Email { get; set; }
 
-        public Adress Address { get; set; }
+        public Address Address { get; set; }
 
+        public List<WorkItem> WorkItems { get; set; } = new List<WorkItem>();
 
     }
 }
