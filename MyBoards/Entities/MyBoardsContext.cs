@@ -16,13 +16,15 @@ namespace MyBoards.Entities
         public DbSet<Tag> Tags { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Address> Adresses { get; set; }
-
+        public DbSet<State>States { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<WorkItem>(eb =>
             {
-                eb.Property(x => x.State).IsRequired();
+                eb.HasOne(w => w.State)
+                .WithMany()
+                .HasForeignKey(w => w.StateId);
                 eb.Property(x => x.Area).HasColumnType("varchar(200)");
                 eb.Property(wi => wi.IterationPath).HasColumnName("Iteration_Path");
                 eb.Property(wi => wi.Efford).HasColumnType("decimal(5,2)");
@@ -37,6 +39,9 @@ namespace MyBoards.Entities
                 eb.HasOne(w => w.Author)
                 .WithMany(u => u.WorkItems)
                 .HasForeignKey(w => w.AuthorId);
+
+                eb.HasMany(w => w.tags)
+                .WithMany(t => t.WorkItems);
             });
 
             modelBuilder.Entity<Comment>(eb =>
@@ -49,7 +54,10 @@ namespace MyBoards.Entities
                 .HasOne(u => u.Address)
                 .WithOne(a => a.User)
                 .HasForeignKey<Address>(a => a.UserId);
-            
+            modelBuilder.Entity<State>()
+                .Property(s => s.Value)
+                .IsRequired()
+                .HasMaxLength(50);
         }
 
     }
